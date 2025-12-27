@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FraudEye – Dashboard</title>
+
+    <!-- Apple-like font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(180deg, #0f172a, #020617);
+        color: #e5e7eb;
+      }
+
+      /* HEADER */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(2, 6, 23, 0.75);
+        backdrop-filter: blur(12px);
+        padding: 18px 28px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      header h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        background: linear-gradient(90deg, #38bdf8, #22d3ee);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      header a {
+        color: #f87171;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      /* MAIN */
+      .container { max-width: 1100px; margin: auto; padding: 30px 20px; }
+
+      /* GLASS CARD */
+      .card {
+        background: rgba(2, 6, 23, 0.7);
+        backdrop-filter: blur(16px);
+        border: 1px solid #1e293b;
+        border-radius: 20px;
+        padding: 26px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+        margin-bottom: 32px;
+      }
+
+      /* RISK METER */
+      .metric-label { text-transform: uppercase; letter-spacing: 1.2px; font-size: 13px; color: #94a3b8; margin: 0; }
+      .meter-wrapper { margin-top: 18px; }
+      .meter { width: 100%; height: 10px; background: rgba(148, 163, 184, 0.18); border-radius: 999px; overflow: hidden; }
+      .meter-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #22c55e, #facc15, #ef4444);
+        border-radius: 999px;
+        transition: width 0.8s ease;
+      }
+      .risk-score {
+        margin-top: 16px;
+        font-size: 60px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        font-variant-numeric: tabular-nums;
+        background: linear-gradient(135deg, #facc15, #f97316);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .analysis {
+        margin-top: 14px;
+        font-size: 14px;
+        color: #a5b4fc;
+        line-height: 1.7;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: all 0.4s ease;
+      }
+
+      .analysis.show { max-height: 200px; opacity: 1; }
+
+      /* TABLE */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(2, 6, 23, 0.7);
+        backdrop-filter: blur(14px);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #1e293b;
+      }
+
+      th {
+        padding: 16px;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #38bdf8;
+        background: rgba(2, 6, 23, 0.9);
+        cursor: pointer;
+      }
+
+      th:hover { color: #7dd3fc; }
+      td { padding: 16px; font-size: 14px; border-bottom: 1px solid #1e293b; }
+      tr:last-child td { border-bottom: none; }
+      tr:hover { background: rgba(56, 189, 248, 0.06); }
+
+      .fraud { color: #ef4444; font-weight: 600; }
+      .safe { color: #22c55e; font-weight: 600; }
+
+      /* BUTTON */
+      form { margin-top: 36px; text-align: center; }
+      button {
+        padding: 16px 36px;
+        font-size: 15px;
+        font-weight: 700;
+        border-radius: 16px;
+        border: none;
+        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+        color: #020617;
+        cursor: pointer;
+        box-shadow: 0 25px 50px rgba(56, 189, 248, 0.45);
+        transition: all 0.2s ease;
+      }
+      button:hover { transform: translateY(-3px); box-shadow: 0 40px 80px rgba(56, 189, 248, 0.7); }
+      button:active { transform: scale(0.96); }
+
+      .info-icon { margin-left: 8px; cursor: pointer; color: #38bdf8; font-size: 14px; }
+      .explanation { display: none; font-size: 12px; color: #facc15; margin-top: 4px; }
+      .explanation.show { display: block; }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h2> FraudEye</h2>
+      <a href="{% url 'logout' %}">Logout</a>
+    </header>
+
+    <div class="container">
+      <!-- RISK CARD -->
+      <div class="card" onclick="toggleAnalysis()">
+        <h3 class="metric-label">System Risk Index</h3>
+        <div class="meter-wrapper">
+          <div class="meter"><div class="meter-fill" id="riskMeter"></div></div>
+          <div class="risk-score">{{ avg_risk }}</div>
+        </div>
+        <div class="analysis" id="analysisBox">
+          This score is calculated using transaction amount anomalies, device fingerprint changes, foreign locations, and account age. Higher values indicate elevated fraud probability.
+        </div>
+      </div>
+
+      <!-- TABLE -->
+      <table>
+        <tr>
+          <th onclick="sortTable(0)">Transaction ID</th>
+          <th onclick="sortTable(1)">Customer ID</th>
+          <th onclick="sortTable(2)">Amount</th>
+          <th onclick="sortTable(3)">Country</th>
+          <th onclick="sortTable(4)">Device</th>
+          <th onclick="sortTable(5)">Risk</th>
+          <th>Status</th>
+        </tr>
+
+        {% for t in transactions %}
+        <tr>
+          <td>{{ t.transaction_id }}</td>
+          <td>{{ t.customer_id }}</td>
+          <td>{{ t.amount }}</td>
+          <td>{{ t.country }}</td>
+          <td>{{ t.device_id }}</td>
+          <td>
+            {{ t.risk_score }}
+            <span class="info-icon" onclick="toggleExplanation('{{ t.id }}')">ℹ️</span>
+            <div class="explanation" id="explanation-{{ t.id }}">
+              {{ t.explanation }}
+            </div>
+          </td>
+          <td class="{% if t.fraud_flag %}fraud{% else %}safe{% endif %}">
+            {% if t.fraud_flag %}Fraud{% else %}Safe{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" style="text-align: center; color: #94a3b8">
+            No transactions yet
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      <!-- BUTTON -->
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Generate Fake Transaction</button>
+      </form>
+    </div>
+
+    <script>
+      function toggleAnalysis() { document.getElementById("analysisBox").classList.toggle("show"); }
+
+      function sortTable(colIndex) {
+        const table = document.querySelector("table");
+        const rows = Array.from(table.rows).slice(1);
+        const asc = table.dataset.sort !== "asc";
+        rows.sort((a, b) => {
+          let A = a.cells[colIndex].innerText.trim();
+          let B = b.cells[colIndex].innerText.trim();
+          if(!isNaN(A) && !isNaN(B)) return asc ? A - B : B - A;
+          return asc ? A.localeCompare(B) : B.localeCompare(A);
+        });
+        table.dataset.sort = asc ? "asc" : "desc";
+        rows.forEach(r => table.appendChild(r));
+      }
+
+      function toggleExplanation(id) {
+        const box = document.getElementById(`explanation-${id}`);
+        box.classList.toggle("show");
+      }
+
+      const avgRisk = Number("{{ avg_risk }}");
+      document.getElementById("riskMeter").style.width = Math.min(avgRisk, 100) + "%";
+    </script>
+  </body>
+</html>

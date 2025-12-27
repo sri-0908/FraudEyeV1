@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FraudEye · Register</title>
+
+    <!-- Apple-like font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(1200px at top, #020617, #000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e5e7eb;
+        }
+
+        /* CARD */
+        .card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(22px);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 28px;
+            padding: 56px 48px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        /* LOGO */
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #38bdf8, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+        }
+
+        p.subtitle {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        /* FORM */
+        form {
+            margin-top: 36px;
+            text-align: left;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #cbd5f5;
+        }
+
+        input {
+            width: 100%;
+            margin-top: 6px;
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            background: rgba(2, 6, 23, 0.7);
+            color: #e5e7eb;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.25);
+        }
+
+        /* BUTTON */
+        button {
+            width: 100%;
+            margin-top: 8px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            color: #020617;
+            cursor: pointer;
+            box-shadow: 0 25px 50px rgba(56,189,248,0.45);
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 40px 80px rgba(56,189,248,0.7);
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 28px;
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 500px) {
+            .card {
+                padding: 48px 32px;
+            }
+            h2 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="logo"> FraudEye</div>
+
+        <h2>Create Account</h2>
+        <p class="subtitle">Start monitoring fraud in real time</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Username</label>
+            <input
+                type="text"
+                name="username"
+                placeholder="Choose a username"
+                required
+            >
+
+            <label>Password</label>
+            <input
+                type="password"
+                name="password"
+                placeholder="Create a strong password"
+                required
+            >
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="footer">
+            Already have an account?
+            <a href="/">Login</a>
+        </div>
+    </div>
+
+</body>
+</html>
