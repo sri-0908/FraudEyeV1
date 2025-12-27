@@ -86,3 +86,17 @@ def dashboard(request):
         "transactions": transactions,
         "avg_risk": avg_risk
     })
+    from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .ml.predict import predict_fraud
+
+@csrf_exempt
+def fraud_check(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        result = predict_fraud(data)
+        return JsonResponse(result)
+
+    return JsonResponse({"error": "POST request required"}, status=400)
+
